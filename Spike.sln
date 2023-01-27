@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spike", "Spike\Spike.csproj", "{7167B620-11DF-4A19-B2D4-EDA3B7B46535}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GbxToolAPI", "GbxToolAPI\GbxToolAPI\GbxToolAPI.csproj", "{98399EEC-CEFB-40A2-A03B-83DD392B2D66}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7167B620-11DF-4A19-B2D4-EDA3B7B46535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7167B620-11DF-4A19-B2D4-EDA3B7B46535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7167B620-11DF-4A19-B2D4-EDA3B7B46535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7167B620-11DF-4A19-B2D4-EDA3B7B46535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98399EEC-CEFB-40A2-A03B-83DD392B2D66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98399EEC-CEFB-40A2-A03B-83DD392B2D66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98399EEC-CEFB-40A2-A03B-83DD392B2D66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98399EEC-CEFB-40A2-A03B-83DD392B2D66}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B61A5D14-A8CE-4BF3-82AD-39373C6F1D25}
+	EndGlobalSection
+EndGlobal
