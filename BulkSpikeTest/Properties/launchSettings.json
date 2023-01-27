@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BulkSpikeTest": {
+      "commandName": "Project",
+      "commandLineArgs": "\"E:\\Visual Studio\\LeaderboardDownloader\\LeaderboardDownloader\\bin\\Debug\\net6.0\""
+    }
+  }
+}
