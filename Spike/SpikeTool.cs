@@ -3,9 +3,11 @@ using GbxToolAPI;
 
 namespace Spike;
 
-public class SpikeTool : Tool
+public class SpikeTool : Tool<SpikeConfig>
 {
     private readonly CGameCtnGhost ghost;
+
+    public override SpikeConfig Config { get; set; } = new();
 
     public SpikeTool(CGameCtnGhost ghost)
     {
