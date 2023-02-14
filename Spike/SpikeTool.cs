@@ -3,7 +3,7 @@ using GbxToolAPI;
 
 namespace Spike;
 
-public class SpikeTool : Tool, IConfigurable<SpikeConfig>
+public class SpikeTool : ITool, IConfigurable<SpikeConfig>
 {
     private readonly CGameCtnGhost ghost;
 
