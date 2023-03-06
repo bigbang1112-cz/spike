@@ -3,6 +3,8 @@ using GbxToolAPI;
 
 namespace Spike;
 
+[ToolName("Spike")]
+[ToolDescription("Input analysis tool.")]
 public class SpikeTool : ITool, IConfigurable<SpikeConfig>
 {
     private readonly CGameCtnGhost ghost;
