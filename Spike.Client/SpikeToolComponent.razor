@@ -1,0 +1,55 @@
+﻿@using GBX.NET.Engines.Game;
+@inject IJSRuntime JS;
+
+@inherits ToolComponentBase<SpikeTool>
+
+<div class="my-component">
+    This component is defined in the <strong>Spike.Client</strong> library.
+</div>
+
+@code {
+    //
+    // Prefer doing logic/calculations/anything-nonvisual outside this component (preferably through SpikeTool.cs class)
+    //
+    
+    // Use 'tool' to work with possible null.
+    private SpikeTool? tool;
+
+    // Use 'Tool' to avoid null checking in places where the Tool must exist already.
+    protected SpikeTool Tool => tool ?? throw new Exception("Tool is null");
+    
+    protected override void OnInitialized()
+    {
+        // GbxSelection includes what you selected in the stage before. If you want you can adjust this to have support for multi-selection.
+        var ghost = this.GbxSelection.FirstOrDefault()?.Object?.Node as CGameCtnGhost;
+
+        if (ghost is null)
+        {
+            return;
+        }
+
+        tool = new SpikeTool(ghost);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+        
+        // Import your JS stuff through this method (dont put <script> tag into this file!)
+        //
+        // await JSHost.ImportAsync("ModuleName", "ModuleUrl");
+        // await JSHost.ImportAsync("ModuleName2", "ModuleUrl2");
+
+        // stuff on first page load perhaps?
+        
+        // run JS dynamically: JS.InvokeAsync()/JS.InvokeVoidAsync()
+        //
+        // run JS with JSImport:
+        // inspiration (or read here https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/import-export-interop):
+        // https://github.com/bigbang1112-cz/map-viewer-engine/blob/main/MapViewerEngine/Modules/Shader.cs
+        // https://github.com/bigbang1112-cz/map-viewer-engine/blob/main/MapViewerEngine/wwwroot/js/shader.js
+    }
+}
