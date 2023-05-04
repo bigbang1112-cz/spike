@@ -3,18 +3,28 @@ using GbxToolAPI;
 
 namespace Spike;
 
-public class SpikeTool : Tool
+[ToolName("Spike")]
+[ToolDescription("Input analysis tool.")]
+[ToolGitHub("bigbang1112-cz/spike")]
+public class SpikeTool : ITool, IConfigurable<SpikeConfig>
 {
-    private readonly CGameCtnGhost ghost;
+    public IEnumerable<CGameCtnGhost> Ghosts { get; }
+
+    public SpikeConfig Config { get; set; } = new();
 
     public SpikeTool(CGameCtnGhost ghost)
     {
-        this.ghost = ghost;
+        Ghosts = Enumerable.Repeat(ghost, 1);
     }
 
-    public (int, int)? Run() // temporary method for testing stuff
+    public SpikeTool(IEnumerable<CGameCtnGhost> ghosts)
     {
-        var inputs = ghost.PlayerInputs?.FirstOrDefault();
+        Ghosts = ghosts;
+    }
+
+    public (int, int)? Run() // temporary method for testing stuff (not invoked by reflection anywhere)
+    {
+        var inputs = Ghosts.FirstOrDefault()?.PlayerInputs?.FirstOrDefault();
 
         if (inputs is null)
         {
