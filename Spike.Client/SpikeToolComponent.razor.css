@@ -1,6 +1,8 @@
-﻿.my-component {
-    border: 2px dashed red;
-    padding: 1em;
-    margin: 1em 0;
-    background-image: url('background.png');
+﻿.container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin: 0 auto;
+	min-height: calc(100vh - 160px);
+	padding: 0 20px;
 }

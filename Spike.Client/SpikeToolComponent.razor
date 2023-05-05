@@ -1,34 +1,38 @@
 ﻿@using GBX.NET.Engines.Game;
 @inject IJSRuntime JS;
+@using System.Runtime.InteropServices.JavaScript;
+@using Spike.Client.Modules;
 
 @inherits ToolComponentBase
 
-<div class="my-component">
-    This component is defined in the <strong>Spike.Client</strong> library.
+<div class="container">
+    <h2>
+        Spike
+    </h2>
+    <div class="wrapper">
+        <div class="main rectangle">
+            <canvas id="spike-chart"></canvas>
+        </div>
+    </div>
 </div>
 
 @code {
     //
     // Prefer doing logic/calculations/anything-nonvisual outside this component (preferably through SpikeTool.cs class)
     //
-    
+
     // Use 'tool' to work with possible null.
     private SpikeTool? tool;
 
     // Use 'Tool' to avoid null checking in places where the Tool must exist already.
     protected SpikeTool Tool => tool ?? throw new Exception("Tool is null");
-    
+
+    CGameCtnGhost? ghost;
+
     protected override void OnInitialized()
     {
         // GbxSelection includes what you selected in the stage before. If you want you can adjust this to have support for multi-selection.
-        var ghost = this.GbxSelection.FirstOrDefault()?.Object?.Node as CGameCtnGhost;
-
-        if (ghost is null)
-        {
-            return;
-        }
-
-        tool = new SpikeTool(ghost);
+        ghost = this.GbxSelection.FirstOrDefault()?.Object?.Node as CGameCtnGhost;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -37,20 +41,12 @@
         {
             return;
         }
-        
-        // Import your JS stuff through this method (dont put <script> tag into this file!)
-        //
-        // await JSHost.ImportAsync("ModuleName", "ModuleUrl"); (remote module)
-        // await JSHost.ImportAsync("ModuleName2", "ModuleUrl2"); (remote module)
-        // await JSHost.ImportAsync("Module3", "../_content/Spike.Client/js/module3.js"); (local module)
 
-        // stuff on first page load perhaps?
-        
-        // run JS dynamically: JS.InvokeAsync()/JS.InvokeVoidAsync()
-        //
-        // run JS with JSImport:
-        // inspiration (or read here https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/import-export-interop):
-        // https://github.com/bigbang1112-cz/map-viewer-engine/blob/main/MapViewerEngine/Modules/Shader.cs
-        // https://github.com/bigbang1112-cz/map-viewer-engine/blob/main/MapViewerEngine/wwwroot/js/shader.js
+        await JSHost.ImportAsync("chartjs", "https://cdn.jsdelivr.net/npm/chart.js");
+        await JSHost.ImportAsync("hammerjs", "https://cdn.jsdelivr.net/npm/hammerjs@2.0.8");
+        await JSHost.ImportAsync("chartjs-plugin-zoom", "https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js");
+        await JSHost.ImportAsync(nameof(SteeringData), "../_content/Spike.Client/js/steeringdata.js");
+
+        SteeringData.GetSteeringDataFromGhost(ghost);
     }
 }
