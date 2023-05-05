@@ -4,6 +4,7 @@ using GbxToolAPI;
 namespace Spike;
 
 [ToolName("Spike")]
+[ToolAuthors("ThaumicTom & BigBang1112")]
 [ToolDescription("Input analysis tool.")]
 [ToolGitHub("bigbang1112-cz/spike")]
 public class SpikeTool : ITool, IConfigurable<SpikeConfig>
