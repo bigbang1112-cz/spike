@@ -151,10 +151,12 @@ export function initaliseChart() {
 	};
 
 	const options = {
-		animation: false,
+		animation: true,
 		responsive: true,
 		maintainAspectRatio: false,
-
+		interaction: {
+			intersect: false,
+		},
 		plugins: {
 			tooltip: {
 				enabled: true,
