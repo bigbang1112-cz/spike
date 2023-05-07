@@ -219,21 +219,10 @@ export function initaliseChart() {
 
 	const config = {
 		type: 'line',
-		//data: data,
 		options: options,
 	};
 
 	chart = new Chart(document.getElementById('spike-chart'), config);
-}
-
-function* generateDummyData(max, steps) {
-	for (var i = 0; i <= (max / steps) * 2 + 1; i++) {
-		let value = i % 2 ? maxSteerAmount : -maxSteerAmount;
-		yield {
-			x: (i * steps) / 2,
-			y: value,
-		};
-	}
 }
 
 const consoleBadge = [
@@ -293,21 +282,6 @@ export function addSteeringGraph(times, steers, offset, length, index, name) {
 
 	chart.options.scales.x.min = globalMin;
 	chart.options.scales.x.max = globalMax;
-	// = {
-	// 	type: 'linear',
-	// 	position: 'bottom',
-	// 	min: globalMin,
-	// 	max: globalMax,
-	// 	ticks: {
-	// 		callback: (val, index, ticks) => {
-	// 			return (index === 0 || index === ticks.length - 1) &&
-	// 				val !== globalMin &&
-	// 				val !== globalMax
-	// 				? null
-	// 				: stylizeTime(val);
-	// 		},
-	// 	},
-	// };
 
 	chart.update();
 }
