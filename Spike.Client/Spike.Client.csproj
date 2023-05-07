@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -14,11 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GbxToolAPI.Client" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GbxToolAPI\Src\GbxToolAPI.Client\GbxToolAPI.Client.csproj" />
     <ProjectReference Include="..\Spike\Spike.csproj" />
   </ItemGroup>
 
