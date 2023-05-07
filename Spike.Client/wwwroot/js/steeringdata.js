@@ -4,11 +4,14 @@ const chartSteps = 500;
 let globalMax = 0;
 let globalMin = 0;
 
+let chart;
+
 function stylizeTime(ms) {
-	const seconds = ms / 1000;
+	const seconds = Math.abs(ms / 1000);
 	const minutes = Math.floor(seconds / 60);
 	const remainingSeconds = (seconds - minutes * 60).toFixed(3);
-	return `${minutes}:${remainingSeconds.padStart(6, '0')}`;
+	const sign = ms < 0 ? '-' : '';
+	return `${sign}${minutes}:${remainingSeconds.padStart(6, '0')}`;
 }
 
 function* fillMissingValues(data, offset, length) {
@@ -22,14 +25,11 @@ function* fillMissingValues(data, offset, length) {
 	let reachedEnd = false;
 	let reachedZero = false;
 
-	// // I likely don't want this
-	// // Fill in first value if it's not 0
 	if (data[0].time > -offset) {
 		yield prev;
 	}
 
 	// Fill in 0 value if it's not the first value
-
 	function yieldEnd(value = prev.value) {
 		reachedEnd = true;
 		return { time: end, value: value };
@@ -74,33 +74,6 @@ function* fillMissingValues(data, offset, length) {
 	}
 }
 
-function* processSteeringData(files) {
-	for (let file of files) {
-		const steeringData = file.steeringData;
-
-		globalMax = Math.max(globalMax, file.length);
-		globalMin = Math.min(globalMin, file.offset);
-
-		const filledSteeringData = Array.from(
-			fillMissingValues(steeringData, file.offset, file.length)
-		);
-
-		const adjustedSteeringData = filledSteeringData.map(({ time, value }) => {
-			return {
-				time: time + file.offset,
-				value: value,
-			};
-		});
-
-		yield {
-			data: adjustedSteeringData,
-			path: file.path,
-			index: file.index,
-			end: file.length,
-		};
-	}
-}
-
 const palette = ['ef476f', 'ffd166', '06d6a0', '118ab2', '073b4c'];
 
 const defaultLabelOptions = {
@@ -120,84 +93,31 @@ function convertIntoChartData(data) {
 	}));
 }
 
-export function visualiseSteeringData(times, steers, offset, length, name) {
-	console.log('Visualising...');
+const maxSteerAmount = 128;
 
-	const steeringData = Array.from(times, (time, index) => {
-		return { time: time, value: steers[index] };
-	});
+export function initaliseChart() {
+	globalMin = 0;
+	globalMax = 0;
 
-	const dd = [{ steeringData, offset, length, path: name }];
-
-	const chartData = Array.from(processSteeringData(dd)).map(({ data, path, index, end }) => {
-		const color = '#' + palette[0 % palette.length];
-
-		console.log(color);
-
-		return {
-			...defaultLabelOptions,
-			label: path,
-
-			segment: {
-				borderColor: (ctx) => {
-					return ctx.p0.parsed.x >= end || ctx.p0.parsed.x < 0 ? color + '77' : color;
-				},
-				borderDash: (ctx) => {
-					return ctx.p0.parsed.x >= end || ctx.p0.parsed.x < 0
-						? [dashAmount, dashAmount]
-						: [];
-				},
-				borderDashOffset: (ctx) => {
-					return ctx.p0.parsed.x >= end ? dashAmount : 0;
-				},
-			},
-
-			borderDashOffset: dashAmount,
-			borderColor: color,
-			backgroundColor: color + '77',
-			data: convertIntoChartData(data),
-		};
-	});
-
-	const maxSteerAmount = 128;
-
-	function* generateDummyData(max, steps) {
-		for (var i = 0; i <= (max / steps) * 2 + 1; i++) {
-			let value = i % 2 ? maxSteerAmount : -maxSteerAmount;
-			yield {
-				x: (i * steps) / 2,
-				y: value,
-			};
-		}
-	}
-
-	const dummydata = Array.from(generateDummyData(globalMax, chartSteps));
-
-	const data = {
-		datasets: [
-			// Dummy data, so the chart does not scale it's Y-axis when zoomed in
-			...chartData,
-			{
-				label: '',
-				data: dummydata,
-
-				showLine: false,
-				// pointStyle: 'line',
-				pointHitRadius: 0,
-				pointRadius: 0,
-			},
-		],
-	};
-
-	const scaleOpts = {
+	const scalesDefault = {
+		grid: {
+			color: '#46474B',
+		},
 		ticks: {
-			callback: (val, index, ticks) =>
-				index === 0 || index === ticks.length - 1 ? null : val,
+			color: '#46474B',
+			fontColor: '#46474B',
+			font: {
+				family: "'Kanit', Rubik, sans-serif",
+			},
+		},
+		border: {
+			color: '#46474B',
 		},
 	};
 
 	const scales = {
 		x: {
+			...scalesDefault,
 			type: 'linear',
 			position: 'bottom',
 			min: globalMin,
@@ -213,6 +133,7 @@ export function visualiseSteeringData(times, steers, offset, length, name) {
 			},
 		},
 		y: {
+			...scalesDefault,
 			type: 'linear',
 			position: 'left',
 			reverse: true,
@@ -229,13 +150,11 @@ export function visualiseSteeringData(times, steers, offset, length, name) {
 		},
 	};
 
-	// Object.keys(scales).forEach((scale) => Object.assign(scales[scale], scaleOpts));
-
-	// ChartJS.defaults.font.family = 'Rubik';
-
 	const options = {
 		animation: false,
 		responsive: true,
+		maintainAspectRatio: false,
+
 		plugins: {
 			tooltip: {
 				enabled: true,
@@ -246,11 +165,16 @@ export function visualiseSteeringData(times, steers, offset, length, name) {
 					},
 					label: (context) => {
 						const value = context.raw.y;
-						return value === -(maxSteerAmount - 1)
-							? 'Full Left'
-							: value === maxSteerAmount - 1
-							? 'Full Right'
-							: value;
+						const label = context.dataset.label;
+
+						const updatedValue =
+							value === -(maxSteerAmount - 1)
+								? 'Full Left'
+								: value === maxSteerAmount - 1
+								? 'Full Right'
+								: value;
+
+						return `${label}: ${updatedValue}`;
 					},
 				},
 			},
@@ -267,7 +191,7 @@ export function visualiseSteeringData(times, steers, offset, length, name) {
 			zoom: {
 				limits: {
 					x: { min: 'original', max: 'original', minRange: chartSteps },
-					y: { min: 'original', max: 'original', minRange: 254 },
+					y: { min: 'original', max: 'original', minRange: 127 * 2 },
 				},
 				pan: {
 					enabled: true,
@@ -291,17 +215,97 @@ export function visualiseSteeringData(times, steers, offset, length, name) {
 		scales: scales,
 	};
 
-	let chart;
-
-	let graphStepped = false;
-	let graphSmooth = true;
-	let graphYReversed = true;
-
 	const config = {
 		type: 'line',
-		data: data,
+		//data: data,
 		options: options,
 	};
 
-	new Chart(document.getElementById('spike-chart'), config);
+	chart = new Chart(document.getElementById('spike-chart'), config);
+}
+
+function* generateDummyData(max, steps) {
+	for (var i = 0; i <= (max / steps) * 2 + 1; i++) {
+		let value = i % 2 ? maxSteerAmount : -maxSteerAmount;
+		yield {
+			x: (i * steps) / 2,
+			y: value,
+		};
+	}
+}
+
+const consoleBadge = [
+	'color: white',
+	'background: #8338ec',
+	'border-radius: 2px',
+	'font-weight: bold',
+	'padding: 0 4px',
+].join(';');
+
+export function addSteeringGraph(times, steers, offset, length, index, name) {
+	console.log('%cDebug', consoleBadge, `Visualising Ghost #${index} (${name})`);
+
+	const steeringData = Array.from(times, (time, index) => {
+		return { time: time, value: steers[index] };
+	});
+
+	const color = '#' + palette[index % palette.length];
+
+	globalMax = Math.max(globalMax, length);
+	globalMin = Math.min(globalMin, offset);
+
+	const filledSteeringData = Array.from(fillMissingValues(steeringData, offset, length));
+
+	const adjustedSteeringData = filledSteeringData.map(({ time, value }) => {
+		return {
+			time: time + offset,
+			value: value,
+		};
+	});
+
+	const chartData = {
+		...defaultLabelOptions,
+		label: name,
+
+		segment: {
+			borderColor: (ctx) => {
+				return ctx.p0.parsed.x >= length || ctx.p0.parsed.x < 0 ? color + '77' : color;
+			},
+			borderDash: (ctx) => {
+				return ctx.p0.parsed.x >= length || ctx.p0.parsed.x < 0
+					? [dashAmount, dashAmount]
+					: [];
+			},
+			borderDashOffset: (ctx) => {
+				return ctx.p0.parsed.x >= length ? dashAmount : 0;
+			},
+		},
+
+		borderDashOffset: dashAmount,
+		borderColor: color,
+		backgroundColor: color + '77',
+		data: convertIntoChartData(adjustedSteeringData),
+	};
+
+	chart.data.datasets.push(chartData);
+
+	chart.options.scales.x.min = globalMin;
+	chart.options.scales.x.max = globalMax;
+	// = {
+	// 	type: 'linear',
+	// 	position: 'bottom',
+	// 	min: globalMin,
+	// 	max: globalMax,
+	// 	ticks: {
+	// 		callback: (val, index, ticks) => {
+	// 			return (index === 0 || index === ticks.length - 1) &&
+	// 				val !== globalMin &&
+	// 				val !== globalMax
+	// 				? null
+	// 				: stylizeTime(val);
+	// 		},
+	// 	},
+	// };
+
+	chart.update();
 }
