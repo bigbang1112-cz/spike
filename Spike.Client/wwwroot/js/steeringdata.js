@@ -93,7 +93,7 @@ function convertIntoChartData(data) {
 	}));
 }
 
-const maxSteerAmount = 128;
+const maxSteerAmount = 127;
 
 export function initaliseChart() {
 	globalMin = 0;
