@@ -18,6 +18,11 @@ public class SpikeTool : ITool, IConfigurable<SpikeConfig>
         Ghosts = Enumerable.Repeat(ghost, 1);
     }
 
+    public SpikeTool(CGameCtnReplayRecord replay)
+    {
+        Ghosts = replay.GetGhosts();
+    }
+
     public SpikeTool(IEnumerable<CGameCtnGhost> ghosts)
     {
         Ghosts = ghosts;

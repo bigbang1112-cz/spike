@@ -93,9 +93,7 @@ function convertIntoChartData(data) {
 	}));
 }
 
-const maxSteerAmount = 127;
-
-export function initaliseChart() {
+export function initaliseChart(maxSteerAmount) {
 	globalMin = 0;
 	globalMax = 0;
 
@@ -193,7 +191,7 @@ export function initaliseChart() {
 			zoom: {
 				limits: {
 					x: { min: 'original', max: 'original', minRange: chartSteps },
-					y: { min: 'original', max: 'original', minRange: 127 * 2 },
+					y: { min: 'original', max: 'original', minRange: maxSteerAmount * 2 },
 				},
 				pan: {
 					enabled: true,
