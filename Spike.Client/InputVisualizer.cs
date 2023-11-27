@@ -4,8 +4,21 @@ using Spike.Client.Modules;
 
 namespace Spike.Client;
 
-class InputVisualizer(CGameCtnGhost ghost, string fileName, bool hasOlderTM, int index)
+class InputVisualizer
 {
+    private readonly CGameCtnGhost ghost;
+    private readonly string fileName;
+    private readonly bool hasOlderTM;
+    private readonly int index;
+
+    public InputVisualizer(CGameCtnGhost ghost, string fileName, bool hasOlderTM, int index)
+    {
+        this.ghost = ghost;
+        this.fileName = fileName;
+        this.hasOlderTM = hasOlderTM;
+        this.index = index;
+    }
+
     public void VisualiseAsSteeringGraph()
     {
         if (ghost.PlayerInputs?.FirstOrDefault() is CGameCtnGhost.PlayerInputData inputData)
