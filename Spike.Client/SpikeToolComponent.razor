@@ -40,19 +40,52 @@
         await JSHost.ImportAsync("chartjs-plugin-zoom", "https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js");
         await JSHost.ImportAsync(nameof(Chart), "../_content/Spike.Client/js/steeringdata.js");
 
-        Chart.InitaliseCharts();
+        var hasOlderTM = HasOlderTM();
+        var maxSteer = hasOlderTM ? 65535 : 127;
 
-        int counter = 0;
+        Chart.InitaliseChart(maxSteer);
+
+        var counter = 0;
 
         // Loop through ghosts
         foreach (var file in files)
         {
-            var ghost = (file.Object?.Node as CGameCtnGhost) ?? throw new Exception("Not a GBX file.");
+            if (file.Object?.Node is CGameCtnGhost ghost)
+            {
+                var visualizer = new InputVisualizer(ghost, file.FileName, hasOlderTM, counter++);
+                visualizer.VisualiseAsSteeringGraph();
+            }
 
-            var fileName = file.FileName;
-
-            Chart.VisualiseGhost(ghost, fileName, counter++);
+            if (file.Object?.Node is CGameCtnReplayRecord replay)
+            {
+                foreach (var g in replay.GetGhosts())
+                {
+                    var visualizer = new InputVisualizer(g, $"{file.FileName} ({g.GhostLogin})", hasOlderTM, counter++);
+                    visualizer.VisualiseAsSteeringGraph();
+                }
+            }
         }
+    }
+
+    bool HasOlderTM()
+    {
+        foreach (var file in files)
+        {
+            if (file.Object?.Node is CGameCtnGhost ghost)
+            {
+                return ghost.PlayerInputs is null;
+            }
+
+            if (file.Object?.Node is CGameCtnReplayRecord replay)
+            {
+                foreach (var g in replay.GetGhosts())
+                {
+                    return g.PlayerInputs is null;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
